@@ -1,0 +1,24 @@
+{
+  "name": "kai-hub",
+  "version": "0.1.0",
+  "description": "Knowledge Hub - 连接多个知识沙龙，形成大规模知识交换",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "jest"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2",
+    "better-sqlite3": "^9.2.2",
+    "uuid": "^9.0.0",
+    "natural": "^6.10.0",
+    "node2vec": "^0.1.0",
+    "d3": "^7.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1",
+    "jest": "^29.7.0"
+  }
+}
