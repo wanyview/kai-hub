@@ -229,3 +229,94 @@ async function start() {
 start();
 
 module.exports = { app, server, io };
+
+// ========== BCI 场景 API ==========
+
+// BCI 场景状态
+app.get('/api/bci/status', async (req, res) => {
+    try {
+        const bciMetrics = new (require('./bci_scenario/metrics/bci-metrics'))();
+        const status = bciMetrics.get_status();
+        
+        res.json({
+            status: 'running',
+            scenario: 'BCI_脑机接口',
+            metrics: status,
+            domains: ['neuroscience', 'ai_algorithm', 'materials_science', 'medical_application', 'ethics_society']
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// BCI 沙龙配置
+app.get('/api/bci/salons', (req, res) => {
+    try {
+        const { BCI_SALONS } = require('./bci_scenario/salons/bci-salons');
+        res.json(BCI_SALONS);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// BCI KaiDison 洞察
+app.get('/api/bci/insights', async (req, res) => {
+    try {
+        // 返回模拟的洞察数据
+        res.json({
+            correlations: [
+                {
+                    type: 'neuroscience_ai',
+                    strength: 0.9,
+                    description: '神经科学与AI算法高度关联',
+                    recommendation: '建议组织神经科学家与AI专家的联合讨论'
+                }
+            ],
+            breakthroughs: [
+                {
+                    type: 'technical_breakthrough',
+                    title: '端到端学习架构',
+                    significance: 85
+                }
+            ],
+            consensus: [
+                {
+                    topic: '认知隐私定义',
+                    strength: 0.82,
+                    recommendation: '已形成初步共识'
+                }
+            ]
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// BCI 评估报告
+app.get('/api/bci/report', (req, res) => {
+    try {
+        const bciMetrics = new (require('./bci_scenario/metrics/bci-metrics'))();
+        const report = bciMetrics.generate_report();
+        res.json(report);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// 更新 BCI 指标
+app.post('/api/bci/metrics', (req, res) => {
+    try {
+        const { metric_name, value } = req.body;
+        const bciMetrics = new (require('./bci_scenario/metrics/bci-metrics'))();
+        bciMetrics.update(metric_name, value);
+        res.json({ status: 'success' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// BCI 仪表盘页面
+app.get('/bci', (req, res) => {
+    res.sendFile(path.join(__dirname, '../../ui/bci-dashboard.html'));
+});
+

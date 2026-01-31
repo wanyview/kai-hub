@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kai-Hub BCI 场景 - 脑机接口知识枢纽</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1600px; margin: 0 auto; }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 30px;
+        }
+        h1 { font-size: 2.5em; margin-bottom: 10px; }
+        .tagline { color: #8892b0; font-size: 1.1em; margin-bottom: 20px; }
+        
+        .bc-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .status-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .status-num { font-size: 2.2em; font-weight: bold; color: #64ffda; }
+        .status-label { color: #8892b0; font-size: 0.85em; margin-top: 5px; }
+        .status-progress {
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        .status-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #64ffda, #667eea);
+            border-radius: 3px;
+            transition: width 0.5s;
+        }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin: 30px 0;
+        }
+        
+        .panel {
+            background: rgba(255,255,255,0.03);
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .panel-title { font-size: 1.3em; font-weight: 600; }
+        .panel-subtitle { color: #8892b0; font-size: 0.85em; }
+        
+        .salon-card {
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(255,255,255,0.02);
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        .salon-title { font-weight: 600; margin-bottom: 8px; }
+        .salon-desc { color: #8892b0; font-size: 0.85em; line-height: 1.5; }
+        .salon-tags { margin-top: 10px; }
+        .tag {
+            display: inline-block;
+            padding: 3px 10px;
+            background: rgba(102, 126, 234, 0.2);
+            border-radius: 4px;
+            font-size: 0.75em;
+            margin-right: 5px;
+        }
+        
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .metric-name { color: #8892b0; }
+        .metric-value { font-weight: 600; color: #64ffda; }
+        
+        .insight-card {
+            padding: 15px;
+            margin: 10px 0;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        .insight-type {
+            font-size: 0.75em;
+            color: #667eea;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        .insight-content { font-size: 0.9em; line-height: 1.6; }
+        
+        .timeline {
+            position: relative;
+            padding-left: 20px;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: rgba(255,255,255,0.1);
+        }
+        .timeline-item {
+            position: relative;
+            padding: 15px 0;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -24px;
+            top: 20px;
+            width: 10px;
+            height: 10px;
+            background: #64ffda;
+            border-radius: 50%;
+        }
+        .timeline-date { font-size: 0.75em; color: #8892b0; }
+        .timeline-title { font-weight: 600; margin: 5px 0; }
+        .timeline-desc { font-size: 0.85em; color: #8892b0; }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+        }
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+        .btn:hover { opacity: 0.8; transform: translateY(-1px); }
+        
+        .domain-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .domain-card {
+            text-align: center;
+            padding: 20px 10px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+        .domain-card:hover {
+            background: rgba(102, 126, 234, 0.2);
+            transform: translateY(-3px);
+        }
+        .domain-icon { font-size: 2em; margin-bottom: 10px; }
+        .domain-name { font-size: 0.85em; }
+        
+        .footer {
+            text-align: center;
+            padding: 40px;
+            margin-top: 40px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: #8892b0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧠 Kai-Hub BCI 场景</h1>
+            <p class="tagline">脑机接口跨学科知识枢纽</p>
+            <span class="bc-badge">Brain-Computer Interface</span>
+            
+            <div class="status-grid" id="statusGrid">
+                <div class="status-card">
+                    <div class="status-num" id="crossLinks">0</div>
+                    <div class="status-label">跨域关联</div>
+                    <div class="status-progress">
+                        <div class="status-progress-bar" id="crossLinksBar" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="status-card">
+                    <div class="status-num" id="fusionCapsules">0</div>
+                    <div class="status-label">融合胶囊</div>
+                    <div class="status-progress">
+                        <div class="status-progress-bar" id="fusionCapsulesBar" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="status-card">
+                    <div class="status-num" id="breakthroughs">0</div>
+                    <div class="status-label">技术突破</div>
+                    <div class="status-progress">
+                        <div class="status-progress-bar" id="breakthroughsBar" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="status-card">
+                    <div class="status-num" id="consensus">0</div>
+                    <div class="status-label">达成共识</div>
+                    <div class="status-progress">
+                        <div class="status-progress-bar" id="consensusBar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <div class="domain-grid">
+            <div class="domain-card">
+                <div class="domain-icon">🧠</div>
+                <div class="domain-name">神经科学</div>
+            </div>
+            <div class="domain-card">
+                <div class="domain-icon">🤖</div>
+                <div class="domain-name">AI算法</div>
+            </div>
+            <div class="domain-card">
+                <div class="domain-icon">⚗️</div>
+                <div class="domain-name">材料科学</div>
+            </div>
+            <div class="domain-card">
+                <div class="domain-icon">🏥</div>
+                <div class="domain-name">医学应用</div>
+            </div>
+            <div class="domain-card">
+                <div class="domain-icon">⚖️</div>
+                <div class="domain-name">伦理社会</div>
+            </div>
+        </div>
+        
+        <div class="main-grid">
+            <div class="panel">
+                <div class="panel-header">
+                    <div>
+                        <div class="panel-title">📡 三个并行沙龙</div>
+                        <div class="panel-subtitle">跨学科协同讨论</div>
+                    </div>
+                    <button class="btn btn-primary" onclick="startAllSalons()">启动全部</button>
+                </div>
+                
+                <div class="salon-card">
+                    <div class="salon-title">🧠 神经科学基础</div>
+                    <div class="salon-desc">探讨大脑信号解码的神经科学基础，包括运动皮层信号特征、感觉反馈机制、神经可塑性与BCI学习。</div>
+                    <div class="salon-tags">
+                        <span class="tag">神经编码</span>
+                        <span class="tag">信号解码</span>
+                        <span class="tag">神经可塑性</span>
+                    </div>
+                </div>
+                
+                <div class="salon-card">
+                    <div class="salon-title">🤖 AI算法突破</div>
+                    <div class="salon-desc">探讨实时高质量信号解码的AI方案，包括低延迟解码算法、个性化模型适应、端到端学习架构。</div>
+                    <div class="salon-tags">
+                        <span class="tag">深度学习</span>
+                        <span class="tag">实时解码</span>
+                        <span class="tag">个性化</span>
+                    </div>
+                </div>
+                
+                <div class="salon-card">
+                    <div class="salon-title">⚖️ 伦理与社会</div>
+                    <div class="salon-desc">探讨脑机接口的伦理边界与社会影响，包括认知隐私定义、认知增强极限、公平获取。</div>
+                    <div class="salon-tags">
+                        <span class="tag">认知隐私</span>
+                        <span class="tag">伦理边界</span>
+                        <span class="tag">公平性</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="panel">
+                <div class="panel-header">
+                    <div>
+                        <div class="panel-title">💡 KaiDison 洞察</div>
+                        <div class="panel-subtitle">跨域关联与涌现</div>
+                    </div>
+                    <button class="btn btn-secondary" onclick="refreshInsights()">刷新</button>
+                </div>
+                
+                <div id="insightsContainer">
+                    <div class="insight-card">
+                        <div class="insight-type">🔗 跨域关联</div>
+                        <div class="insight-content">神经科学与AI算法在信号解码方面存在高度关联，建议组织联合讨论会。</div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-type">💥 突破检测</div>
+                        <div class="insight-content">检测到关于"端到端学习架构"的技术突破讨论，可能带来范式转换。</div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-type">✅ 共识达成</div>
+                        <div class="insight-content">关于"认知隐私定义"已在神经科学家与伦理学家之间达成初步共识。</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="panel">
+                <div class="panel-header">
+                    <div>
+                        <div class="panel-title">📊 技术指标</div>
+                        <div class="panel-subtitle">BCI 关键性能指标</div>
+                    </div>
+                </div>
+                
+                <div class="metric-row">
+                    <span class="metric-name">信号解码准确率</span>
+                    <span class="metric-value">87% / 95%</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-name">解码延迟</span>
+                    <span class="metric-value">35ms / 50ms</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-name">活跃Agent数</span>
+                    <span class="metric-value">10 / 12</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-name">讨论轮次</span>
+                    <span class="metric-value">28 / 50</span>
+                </div>
+            </div>
+            
+            <div class="panel">
+                <div class="panel-header">
+                    <div>
+                        <div class="panel-title">📅 发展时间线</div>
+                        <div class="panel-subtitle">关键里程碑</div>
+                    </div>
+                </div>
+                
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-date">Week 1</div>
+                        <div class="timeline-title">启动三个并行沙龙</div>
+                        <div class="timeline-desc">创建主题配置，初始化Agent池</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">Week 2</div>
+                        <div class="timeline-title">跨域关联检测</div>
+                        <div class="timeline-desc">KaiDison开始识别并报告关联</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">Week 3</div>
+                        <div class="timeline-title">首次融合胶囊</div>
+                        <div class="timeline-desc">生成第一个跨域融合知识胶囊</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">Week 4</div>
+                        <div class="timeline-title">评估与迭代</div>
+                        <div class="timeline-desc">收集反馈，优化指标体系</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>🧠 BCI 脑机接口知识枢纽 | Kai-Hub v0.1.0</p>
+            <p style="margin-top: 10px; font-size: 0.85em;">
+                连接神经科学 + AI + 材料科学 + 医学 + 伦理
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE = '';
+        
+        async function loadBCIStatus() {
+            try {
+                const res = await fetch(`${API_BASE}/api/bci/status`);
+                const data = await res.json();
+                
+                document.getElementById('crossLinks').textContent = data.metrics?.cross_domain_links?.current || 0;
+                document.getElementById('fusionCapsules').textContent = data.metrics?.fusion_capsules?.current || 0;
+                document.getElementById('breakthroughs').textContent = data.metrics?.breakthroughs?.current || 0;
+                document.getElementById('consensus').textContent = data.metrics?.consensus?.current || 0;
+                
+                // Update progress bars
+                const updateBar = (id, current, target) => {
+                    const pct = target > 0 ? Math.min(100, (current / target) * 100) : 0;
+                    document.getElementById(id).style.width = `${pct}%`;
+                };
+                
+                updateBar('crossLinksBar', data.metrics?.cross_domain_links?.current || 0, 20);
+                updateBar('fusionCapsulesBar', data.metrics?.fusion_capsules?.current || 0, 10);
+                updateBar('breakthroughsBar', data.metrics?.breakthroughs?.current || 0, 5);
+                updateBar('consensusBar', data.metrics?.consensus?.current || 0, 5);
+            } catch (e) {
+                console.log('API not available');
+            }
+        }
+        
+        async function startAllSalons() {
+            alert('启动三个并行沙龙...\n\n1. 神经科学基础\n2. AI算法突破\n3. 伦理与社会');
+        }
+        
+        async function refreshInsights() {
+            try {
+                const res = await fetch(`${API_BASE}/api/bci/insights`);
+                const data = await res.json();
+                // Update insights container
+            } catch (e) {
+                console.log('Failed to refresh insights');
+            }
+        }
+        
+        // Initialize
+        loadBCIStatus();
+        
+        // Auto-refresh every 30 seconds
+        setInterval(loadBCIStatus, 30000);
+    </script>
+</body>
+</html>
