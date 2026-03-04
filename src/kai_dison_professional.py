@@ -39,7 +39,7 @@ class IndividualScientist:
     type: str = "individual"
     
     # 基本信息
-    field: str = ""
+    research_field: str = ""
     era: str = ""
     nationality: str = ""
     
@@ -68,7 +68,7 @@ class ResearchTeam:
     
     # 基本信息
     organization: str = ""
-    field: str = ""
+    research_field: str = ""
     founded: str = ""
     
     # 成员
@@ -98,7 +98,7 @@ class ResearchOrganization:
     type: str = "organization"
     
     # 基本信息
-    field: str = ""
+    research_field: str = ""
     founded: str = ""
     location: str = ""
     
@@ -482,7 +482,7 @@ class TrendPredictor:
 class KaiDisonProfessional:
     """KaiDison 专业级数字科学家"""
     
-    def __init__(self, capsulehub_url: str = "http://localhost:8001"):
+    def __init__(self, capsulehub_url: str = "http://localhost:8005"):
         self.name = "KaiDison"
         self.level = "Professional (L5)"
         self.capsulehub_url = capsulehub_url
@@ -608,18 +608,24 @@ class KaiDisonProfessional:
         capsules = []
         
         try:
-            url = f"{self.capsulehub_url}/api/capsules?limit=100"
+            url = f"{self.capsulehub_url}/capsules?limit=100"
             with urllib.request.urlopen(url, timeout=5) as response:
                 data = json.loads(response.read().decode())
                 
                 for c in data.get("capsules", []):
+                    # 解析 tags 作为 topics，content 片段作为 evidence
+                    topics = c.get("tags", []) or []
+                    # 从 content 中提取前200字符作为 evidence
+                    evidence = [c.get("content", "")[:200]] if c.get("content") else []
+                    authors = [c.get("author", "")] if c.get("author") else []
+                    
                     capsules.append(Capsule(
                         title=c.get("title", ""),
                         domain=c.get("domain", ""),
-                        topics=c.get("topics", []),
-                        insight=c.get("insight", ""),
-                        evidence=c.get("evidence", []),
-                        authors=c.get("authors", [])
+                        topics=topics,
+                        insight=c.get("content", "")[:300],
+                        evidence=evidence,
+                        authors=authors
                     ))
         except Exception as e:
             print(f"   ⚠️ 获取胶囊失败: {e}")
